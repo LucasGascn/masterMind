@@ -31,3 +31,5 @@ function MastermindSolver(code,solution){
     // F is the final tab if all status from F are « correct » then open the magnet
     return F
 }
+
+export default MastermindSolver
