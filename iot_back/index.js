@@ -1,13 +1,34 @@
 const express = require("express");
 const app = express();
 const port = 3000;
-
+const cors = require("cors");
 const mqtt = require("./mqtt");
+const Mastermind = require("./algo");
+
 var SerialPort = require("serialport");
 var xbee_api = require("xbee-api");
 var C = xbee_api.constants;
-//var storage = require("./storage")
+
+app.use(cors());
+
 require("dotenv").config();
+
+function genererAleatoire() {
+  var caracteres = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+
+  var indiceAleatoire = Math.floor(Math.random() * caracteres.length);
+
+  return caracteres[indiceAleatoire];
+}
+
+let solucePlayer1 = [];
+let solucePlayer2 = [];
+
+let player1Id = "";
+let player2Id = "";
+
+let counterplayer1 = 0;
+let counterplayer2 = 0;
 
 const SERIAL_PORT = process.env.SERIAL_PORT;
 
@@ -30,38 +51,34 @@ let serialport = new SerialPort(
 serialport.pipe(xbeeAPI.parser);
 xbeeAPI.builder.pipe(serialport);
 
-// All frames parsed by the XBee will be emitted here
-
-// storage.listSensors().then((sensors) => sensors.forEach((sensor) => console.log(sensor.data())))
-
 xbeeAPI.parser.on("data", function (frame) {
-  //   //on new device is joined, register it
-
-  //on packet received, dispatch event
-  //let dataReceived = String.fromCharCode.apply(null, frame.data);
   if (C.FRAME_TYPE.ZIGBEE_RECEIVE_PACKET === frame.type) {
-    console.log("C.FRAME_TYPE.ZIGBEE_RECEIVE_PACKET");
     let dataReceived = String.fromCharCode.apply(null, frame.data);
-    console.log(">> ZIGBEE_RECEIVE_PACKET >", dataReceived);
-  }
 
-  //   if (C.FRAME_TYPE.NODE_IDENTIFICATION === frame.type) {
-  //     // let dataReceived = String.fromCharCode.apply(null, frame.nodeIdentifier);
-  //     console.log("NODE_IDENTIFICATION");
-  //     //storage.registerSensor(frame.remote64)
-  //   } else if (C.FRAME_TYPE.ZIGBEE_IO_DATA_SAMPLE_RX === frame.type) {
-  //     console.log("ZIGBEE_IO_DATA_SAMPLE_RX");
-  //     console.log(frame.analogSamples.AD0);
-  //     //storage.registerSample(frame.remote64,frame.analogSamples.AD0 )
-  //   } else if (C.FRAME_TYPE.REMOTE_COMMAND_RESPONSE === frame.type) {
-  //     console.log("REMOTE_COMMAND_RESPONSE", frame);
-  //     let dataReceived = String.fromCharCode.apply(null, frame.commandData);
-  //     console.log(">> ZIGBEE_RECEIVE_PACKET >", dataReceived);
-  //   } else {
-  //     console.debug(frame);
-  //     let dataReceived = String.fromCharCode.apply(null, frame.commandData);
-  //     console.log(dataReceived);
-  //   }
+    dataReceived = dataReceived.slice(0, 5).split("");
+
+    if (player1Id === "") {
+      player1Id = frame.remote64;
+    } else if (player1Id !== "" && player2Id === "") {
+      player2Id = frame.remote64;
+    }
+
+    if (frame.remote64 === player1Id) {
+      counterplayer1++;
+    } else {
+      counterplayer2++;
+    }
+
+    const response = Mastermind.MastermindSolver(dataReceived, solucePlayer1);
+
+    const res = {
+      id: frame.remote64,
+      counter: frame.remote64 === player1Id ? counterplayer1 : counterplayer2,
+      input: response,
+    };
+
+    mqtt.sendMqtt(JSON.stringify(res));
+  }
 });
 
 app.get("/", (req, res) => {
@@ -69,24 +86,18 @@ app.get("/", (req, res) => {
 });
 
 app.get("/send", (req, res) => {
-  // var frame_obj = {
-  //   // AT Request to be sent
-  //   type: C.FRAME_TYPE.AT_COMMAND,
-  //   command: "D0",
-  //   commandParameter: ["01"],
-  // };
-
-  // xbeeAPI.builder.write(frame_obj);
-
-  // xbeeAPI.parser.on("data", function (frame) {
-  //   console.debug(frame);
-  //   let dataReceived = String.fromCharCode.apply(null, frame.commandData);
-  //   console.log(dataReceived);
-  //   frame.commandData = dataReceived;
-  //   res.send(frame);
-  // });
   mqtt.sendMqtt("test");
   res.send("ok");
+});
+
+app.get("/start", (req, res) => {
+  solucePlayer1 = [];
+  solucePlayer2 = [];
+  for (let i = 0; i < 5; i++) {
+    solucePlayer1.push(genererAleatoire());
+    solucePlayer2.push(genererAleatoire());
+  }
+  res.send({ player1: solucePlayer1, player2: solucePlayer2 });
 });
 
 app.listen(port, () => {
