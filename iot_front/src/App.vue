@@ -1,8 +1,7 @@
 <script setup>
 import HelloWorld from './components/HelloWorld.vue'
-import mqtt from 'mqtt'
-import { ref } from "vue";
-const client = mqtt.connect("mqtt://test.mosquitto.org");
+import "./function/mqtt.js"
+/*const client = mqtt.connect("mqtt://test.mosquitto.org:1883");
 
 const player1 = ref([])
 const player2 = ref([])
@@ -14,11 +13,8 @@ client.on("connect", function () {
       isConnected = true;
     }
   });
-});
+});*/
 
-client.on('message', function(topic, message){
-  
-})
 </script>
 
 <template>
