@@ -1,0 +1,24 @@
+{
+  "name": "iot_front",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "buffer": "^6.0.3",
+    "dotenv": "^16.4.3",
+    "mqtt": "^5.3.5",
+    "serialport": "^12.0.0",
+    "vue": "^3.4.15",
+    "xbee": "^0.0.4",
+    "xbee-api": "^0.6.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.3",
+    "vite": "^5.1.0"
+  }
+}
