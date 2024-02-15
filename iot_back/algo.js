@@ -1,5 +1,5 @@
 exports.MastermindSolver = (code, solution) => {
-  const S = solution; // solution of the mastermind
+  const S = solution.map((el)=>(el)); // solution of the mastermind
   const R = code; // user answer
   // code is null x 5 upon sending the info twice
   console.log(4, solution);
