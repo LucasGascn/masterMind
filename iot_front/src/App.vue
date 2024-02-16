@@ -11,10 +11,10 @@ const player1Input = ref([])
 const player2Input = ref([])
 
 const startGame = async () => {
-  const res = await axios.get("http://localhost:3000/start")
+  //const res = await axios.get("http://localhost:3000/start")
+  client.publish("mastermind/start",JSON.stringify({msg: "start"}))
   player1Input.value = []
   player2Input.value = []
-  console.log(res)
 }
 
 client.on("connect", function () {
@@ -27,19 +27,16 @@ client.on("connect", function () {
 
 client.on("message", function(topic, msg) {
   const res = JSON.parse(msg.toString());
-  if(player1Input.value.filter(e => e.id === res.id)){
-    player1Input.value.push(res)
-  }else if(player2Input.value.filter(e => e.id === res.id)){
-    player2Input.value.push(res)
+  if(res.id === "player1"){
+    player1Input.value.unshift(res)
   }else{
-    player1Input.value.push(res)
+    player2Input.value.unshift(res)
   }
-  console.log()
 })
 </script>
 
 <template>
-  <div style="width: 100%; margin: 0">
+  <div style="width: 100%; margin: 0; display: flex; flex-direction: column; justify-content: space-between">
     <button @click="startGame">
       start
     </button>
@@ -48,28 +45,30 @@ client.on("message", function(topic, msg) {
         <div style="width: 30%;">
           <div style="width: 100%; display: flex; justify-content: space-around">
             <p>Player 1</p>
-            <p>Counter : {{player1Input.length}}</p>
+            <p>Count : {{player1Input.length}}</p>
           </div>
           <div style="display: flex; width: 100%; justify-content: space-around;">
             <p v-for="soluce in soluce1Display">
               {{soluce}}
             </p>
           </div>
-          <div style="display: flex; width: 100%; flex-direction: column; justify-content: space-around;" v-for="input in player1Input">
-            <div style="display: flex; justify-content: space-around">
-              <p v-for="soluce in input.input">
-                {{soluce.value}}
-              </p>
-            </div>
-            <div style="display: flex; justify-content: space-around; width: 100%;">
-              <div style="color: green">
-                {{input.input.filter(e => e.status === "correct").length}}
+          <div style="max-height: 500px; overflow-y: scroll">
+            <div style="display: flex; width: 100%; flex-direction: column; justify-content: space-around;" v-for="input in player1Input">
+              <div style="display: flex; justify-content: space-around">
+                <p v-for="soluce in input.input">
+                  {{soluce.value}}
+                </p>
               </div>
-              <div style="color: darkorange">
-                {{input.input.filter(e => e.status === "misplaced").length}}
-              </div>
-              <div style="color: red">
-                {{input.input.filter(e => e.status === "incorrect").length}}
+              <div style="display: flex; justify-content: space-around; width: 100%;">
+                <div style="color: green">
+                  {{input.input.filter(e => e.status === "correct").length}}
+                </div>
+                <div style="color: darkorange">
+                  {{input.input.filter(e => e.status === "misplaced").length}}
+                </div>
+                <div style="color: red">
+                  {{input.input.filter(e => e.status === "incorrect").length}}
+                </div>
               </div>
             </div>
           </div>
@@ -77,17 +76,32 @@ client.on("message", function(topic, msg) {
         <div style="width: 30%;">
           <div style="width: 100%; display: flex; justify-content: space-around">
             <p>Player 2</p>
-            <p>Counter : {{player2Input.length}}</p>
+            <p>Count : {{player2Input.length}}</p>
           </div>
           <div style="display: flex; width: 100%; justify-content: space-around;">
             <p v-for="soluce in soluce2Display">
               {{soluce}}
             </p>
           </div>
-          <div style="display: flex; width: 100%; justify-content: space-around;" v-for="input in player2Input">
-            <p v-for="soluce in input.input">
-              {{soluce.value}}
-            </p>
+          <div style="max-height: 500px; overflow-y: scroll">
+            <div style="display: flex; width: 100%; flex-direction: column; justify-content: space-around;" v-for="input in player2Input">
+              <div style="display: flex; justify-content: space-around">
+                <p v-for="soluce in input.input">
+                  {{soluce.value}}
+                </p>
+              </div>
+              <div style="display: flex; justify-content: space-around; width: 100%;">
+                <div style="color: green">
+                  {{input.input.filter(e => e.status === "correct").length}}
+                </div>
+                <div style="color: darkorange">
+                  {{input.input.filter(e => e.status === "misplaced").length}}
+                </div>
+                <div style="color: red">
+                  {{input.input.filter(e => e.status === "incorrect").length}}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 

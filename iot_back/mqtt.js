@@ -5,12 +5,16 @@ let isConnected = false;
 client.on("connect", function () {
   client.subscribe("mastermind/player/input", function (err) {
     if (!err) {
-      isConnected = true;
       console.log("connecté");
     }
   });
+  client.subscribe("mastermind/start");
 });
 
 exports.sendMqtt = (msg) => {
   client.publish("mastermind/player/input", msg);
+};
+
+exports.retrieveClient = () => {
+  return client;
 };
