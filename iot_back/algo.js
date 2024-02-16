@@ -1,4 +1,4 @@
-exports.MastermindSolver = (code, solution) => {
+exports.masterMindSolver = (code, solution) => {
   const solutionArray = solution.map((el) => el); // solution of the mastermind
   const response = code; // user answer
   // code is null x 5 upon sending the info twice

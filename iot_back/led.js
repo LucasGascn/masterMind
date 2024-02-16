@@ -1,7 +1,7 @@
 var xbee_api = require("xbee-api");
 var C = xbee_api.constants;
 
-exports.LedLighter = (
+exports.ledLighter = (
   ledArray,
   correctLength,
   misplacedLength,
