@@ -1,18 +1,18 @@
 var xbee_api = require("xbee-api");
 var C = xbee_api.constants;
 
-exports.LedLighter = (
+exports.ledLighter = (
   ledArray,
   correctLength,
   misplacedLength,
   xbee_api,
   playerMac
 ) => {
-  const n = correctLength; // number of correct numbers
-  const m = misplacedLength; // number of misplaced numbers
+  const correctNumbers = correctLength; // number of correct numbers
+  const incorrectNumbers = misplacedLength; // number of misplaced numbers
   let frame_obj;
   for (let i = 0; i < 5; i++) {
-    if (n > i) {
+    if (correctNumbers > i) {
       // turn the green LED on
       frame_obj = {
         // AT Request to be sent
@@ -31,7 +31,7 @@ exports.LedLighter = (
         commandParameter: [0x00],
       };
       xbee_api.builder.write(frame_obj);
-    } else if (m > i - n) {
+    } else if (incorrectNumbers > i - correctNumbers) {
       // turn the blue LED on
       frame_obj = {
         // AT Request to be sent

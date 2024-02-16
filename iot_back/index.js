@@ -80,8 +80,8 @@ xbeeAPI.parser.on("data", function (frame) {
 
     const response =
       frame.remote64 === player1Id
-        ? Mastermind.MastermindSolver(dataReceived, solucePlayer1)
-        : Mastermind.MastermindSolver(dataReceived, solucePlayer2);
+        ? Mastermind.masterMindSolver(dataReceived, solucePlayer1)
+        : Mastermind.masterMindSolver(dataReceived, solucePlayer2);
 
     const res = {
       id: frame.remote64 === player1Id ? "player1" : "player2",
@@ -89,7 +89,7 @@ xbeeAPI.parser.on("data", function (frame) {
       input: response,
     };
     if (frame.remote64 === player1Id) {
-      led.LedLighter(
+      led.ledLighter(
         ledArrayp1,
         response.filter((e) => e.status === "correct").length,
         response.filter((e) => e.status === "misplaced").length,
@@ -97,7 +97,7 @@ xbeeAPI.parser.on("data", function (frame) {
         "0013A20041A713B4"
       );
     } else {
-      led.LedLighter(
+      led.ledLighter(
         ledArrayp2,
         response.filter((e) => e.status === "correct").length,
         response.filter((e) => e.status === "misplaced").length,
